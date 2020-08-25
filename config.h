@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const unsigned int borderpx  = 1;        /* border pixel of windows */
+static const unsigned int borderpx  = 0;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const unsigned int gappih    = 5;       /* horiz inner gap between windows */
 static const unsigned int gappiv    = 5;       /* vert inner gap between windows */
@@ -9,23 +9,23 @@ static const unsigned int gappoh    = 5;       /* horiz outer gap between window
 static const unsigned int gappov    = 5;       /* vert outer gap between windows and screen edge */
 static const int usealtbar          = 1;        /* 1 means use non-dwm status bar */
 static const char *altbarclass      = "Polybar"; /* Alternate bar class name */
-static const char *alttrayname      = "tray";    /* Polybar tray instance name */
-static const char *altbarcmd        = "$HOME/bar.sh"; /* Alternate bar launch command */
+static const char *alttrayname      = "";    /* Polybar tray instance name */
+static const char *altbarcmd        = "$HOME/.config/polybar/launch.sh"; /* Alternate bar launch command */
 static const int smartgaps          = 0;        /* 1 means no outer gap when there is only one window */
 
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const char *fonts[]          = { "hack:size=10" };
 static const char dmenufont[]       = "hack:size=10";
-static const char bg_01[]	        = "#1d1f21";
+static const char bg_01[]	    = "#1d1f21";
 static const char border_01[]       = "#a54242";
 static const char fg_01[]           = "#c5c8c6";
 static const char fg_02[]           = "#eeeeee";
 static const char yellow_01[]       = "#de953f";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
-	[SchemeNorm] = { fg_01, bg_01,      border_01  },
-	[SchemeSel]  = { fg_02, yellow_01,  yellow_01  },
+	[SchemeNorm] = { fg_01, bg_01,      bg_01  },
+	[SchemeSel]  = { fg_02, yellow_01,  bg_01  },
 };
 
 /* tagging */
@@ -36,9 +36,11 @@ static const Rule rules[] = {
 	 *	WM_CLASS(STRING) = instance, class
 	 *	WM_NAME(STRING) = title
 	 */
-	/* class      instance    title       tags mask     isfloating   monitor */
-	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
-	{ "Chromium",  NULL,       NULL,       1 << 8,       0,           -1 },
+	/* class           instance    title       tags mask     isfloating   monitor */
+	{ "Gimp",           NULL,       NULL,       0,            1,           -1 },
+	{ "Brave",          NULL,       NULL,       1 << 8,       0,           -1 },
+        { "Pavucontrol",    NULL,       NULL,       0,            1,           -1 },
+        { "fsearch",        NULL,       NULL,       0,            1,           -1 },
 };
 
 /* layout(s) */
@@ -66,13 +68,29 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", bg_01, "-nf", fg_01, "-sb", yellow_01, "-sf", fg_02, NULL };
+static const char *dmenucmd[] = { "rofi", "-modi", "run,drun", "-show", "drun", "-line-padding", "4", "-width", "20", "-lines", "15", "-padding", "10", "-hide-scrollbar", "-show-icons", "drun-icon-theme", NULL };
+// static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", bg_01, "-nf", fg_01, "-sb", yellow_01, "-sf", fg_02, NULL };
 static const char *termcmd[]  = { "st", NULL };
+static const char *volupcmd[] = { "/bin/sh", "-c", "pactl set-sink-mute @DEFAULT_SINK@ false && pactl set-sink-volume @DEFAULT_SINK@ +5%", NULL };
+static const char *voldowncmd[] = { "/bin/sh", "-c", "pactl set-sink-mute @DEFAULT_SINK@ false && pactl set-sink-volume @DEFAULT_SINK@ -5%", NULL };
+static const char *mutecmd[] = { "pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle", NULL }; 
+static const char *lightupcmd[] = { "backlightctl", "up"};
+static const char *lightdowncmd[] = { "backlightctl", "down"};
+static const char *monitorcmd[] = { "/home/max/scripts/autorandr/rofi_switcher.sh", NULL };
+static const char *searchcmd[] = { "fsearch", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
+        { 0,                            0x1008ff11,spawn,          {.v = voldowncmd} },
+        { 0,                            0x1008ff13,spawn,          {.v = volupcmd} },
+        { 0,                            0x1008ff12,spawn,          {.v = mutecmd} },
+        { 0,                            0x1008ff02,spawn,          {.v = lightupcmd} },
+        { 0,                            0x1008ff03,spawn,          {.v = lightdowncmd} },
+	{ 0,                            0x1008ff4a,spawn,          {.v = monitorcmd} },
+	{ 0,                            0x1008ff1b,spawn,          {.v = searchcmd} },
+	{ MODKEY,                       XK_s,      spawn,          {.v = searchcmd} },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
@@ -102,6 +120,7 @@ static Key keys[] = {
 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
 	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
+	{ MODKEY|ShiftMask,             XK_m,      spawn,          {.v = monitorcmd} },
 	{ MODKEY,                       XK_space,  setlayout,      {0} },
 	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
 	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
