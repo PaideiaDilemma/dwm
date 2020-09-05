@@ -10,7 +10,7 @@ static const unsigned int gappov    = 5;       /* vert outer gap between windows
 static const int usealtbar          = 1;        /* 1 means use non-dwm status bar */
 static const char *altbarclass      = "Polybar"; /* Alternate bar class name */
 static const char *alttrayname      = "";    /* Polybar tray instance name */
-static const char *altbarcmd        = "$HOME/.config/polybar/launch.sh"; /* Alternate bar launch command */
+static const char *altbarcmd        = "$HOME/.config/polybar/launch"; /* Alternate bar launch command */
 static const int smartgaps          = 0;        /* 1 means no outer gap when there is only one window */
 
 static const int showbar            = 1;        /* 0 means no bar */
@@ -36,11 +36,11 @@ static const Rule rules[] = {
 	 *	WM_CLASS(STRING) = instance, class
 	 *	WM_NAME(STRING) = title
 	 */
-	/* class           instance    title       tags mask     isfloating   monitor */
-	{ "Gimp",           NULL,       NULL,       0,            1,           -1 },
-	{ "Brave",          NULL,       NULL,       1 << 8,       0,           -1 },
-        { "Pavucontrol",    NULL,       NULL,       0,            1,           -1 },
-        { "fsearch",        NULL,       NULL,       0,            1,           -1 },
+	/* class           instance    title       tags mask      iscentered    isfloating   monitor */
+	{ "Gimp",           NULL,       NULL,       0,            0,            1,           -1 },
+	{ "Brave",          NULL,       NULL,       1 << 8,       0,            0,           -1 },
+        { "Pavucontrol",    NULL,       NULL,       0,            1,            1,           -1 },
+        { "Fsearch",        NULL,       NULL,       0,            1,            1,           -1 },
 };
 
 /* layout(s) */
