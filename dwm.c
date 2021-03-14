@@ -280,6 +280,7 @@ static int xerror(Display *dpy, XErrorEvent *ee);
 static int xerrordummy(Display *dpy, XErrorEvent *ee);
 static int xerrorstart(Display *dpy, XErrorEvent *ee);
 static void zoom(const Arg *arg);
+void vtile(Monitor *m);
 
 /* variables */
 static const char broken[] = "broken";
@@ -2562,6 +2563,41 @@ zoom(const Arg *arg)
 	pop(c);
 }
 
+void
+vtile(Monitor *m)
+{
+	unsigned int i, n, w, r, oe = enablegaps, ie = enablegaps, mh, mx, tx;
+	Client *c;
+
+	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+	if (n == 0)
+		return;
+
+	if (smartgaps == n) {
+		oe = 0; // outer gaps disabled
+	}
+
+	if (n > m->nmaster)
+		mh = m->nmaster ? (m->wh + m->gappih*ie) * m->mfact : 0;
+	else
+		mh = m->wh - 2*m->gappoh*oe + m->gappih*ie;
+	for (i = 0, mx = tx = m->gappov*oe, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
+		if (i < m->nmaster) {
+			r = MIN(n, m->nmaster) - i;
+			w = (m->ww - mx - m->gappov*oe - m->gappiv*ie * (r - 1)) / r;
+			resize(c, m->wx + mx, m->wy + m->gappoh*oe, w - (2*c->bw), mh - (2*c->bw) - m->gappih*ie, 0);
+			if (mx + WIDTH(c) + m->gappiv*ie < m->ww)
+			mx += WIDTH(c) + m->gappiv*ie;
+		} else {
+			r = n - i;
+			w = (m->ww - tx - m->gappov*oe - m->gappiv*ie * (r - 1)) / r;
+			resize(c, m->wx + tx, m->wy + mh + m->gappoh*oe, w - (2*c->bw), m->wh - mh - (2*c->bw) - 2*m->gappoh*oe, 0);
+			if (tx + WIDTH(c) + m->gappiv*ie < m->ww)
+				tx += WIDTH(c) + m->gappiv*ie;
+		}
+}
+
+
 int
 main(int argc, char *argv[])
 {
@@ -2585,3 +2621,4 @@ main(int argc, char *argv[])
 	XCloseDisplay(dpy);
 	return EXIT_SUCCESS;
 }
+
